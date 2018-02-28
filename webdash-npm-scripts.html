@@ -1,0 +1,274 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="/bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/av-icons.html">
+
+
+<dom-module id="webdash-npm-scripts">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            #buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr auto;
+                align-items: center;
+                justify-items: center;
+                min-height: 200px;
+                text-align: center;
+            }
+
+            #more{
+                min-width: 46px;
+                height: 46px;
+                width: auto;
+                background-color: var(--gray-8);
+            }
+
+            .button-container{
+                width: 100%;
+            }
+
+            .button {
+                font-weight: bold;
+                text-transform: initial;
+                width: 80%;
+                border-radius: 6px;
+            }
+            .button-0{
+                background-color: var(--accent);
+            }
+            .button-1{
+                background-color: var(--brand);
+            }
+            .button-2{
+                background-color: var(--alternative);
+            }
+
+            paper-spinner-lite {
+                width: 20px;
+                height: 20px;
+                margin-right: 10px;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            .toast-button {
+                color: white;
+                font-weight: bold;
+            }
+
+            paper-toast {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                min-width: 0;
+            }
+
+            paper-toast.error {
+                --paper-toast-background-color: #f44336;
+            }
+
+            paper-dialog {
+                z-index: 10000;
+            }
+
+            .stop {
+                display: none;
+            }
+
+            .running:hover .stop {
+                display: block;
+            }
+
+            .running:hover paper-spinner-lite {
+                display: none;
+            }
+        </style>
+
+        <div id="plugin">
+            <div id="buttons">
+                <template is="dom-repeat" items="{{primary}}">
+                    <div class="button-container">
+                        <paper-button class$="button button-{{index}}" on-click="runCommand" raised>
+                            <paper-spinner-lite class="hidden"></paper-spinner-lite>
+                            <iron-icon icon="av:stop" class="stop"></iron-icon>
+                            {{item.script}}
+                        </paper-button>
+                        <paper-tooltip position="top" animation-delay="0">{{item.command}}</paper-tooltip>
+                    </div>
+                </template>
+                    <paper-menu-button vertical-align="top" horizontal-align="right">
+                        <paper-button slot="dropdown-trigger" id="more" class="button" slot="dropdown-trigger">
+                        <svg width="14" height="10" viewBox="0 0 14 10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                          <g id="Canvas" transform="translate(-2459 -1691)">
+                            <g id="chevron-down">
+                              <use xlink:href="#path0_fill" transform="translate(2448.7 1688)" fill="#FFF"/>
+                            </g>
+                          </g>
+                          <defs>
+                            <path id="path0_fill" d="M16.94 11.906c.124.188.312.25.53.25a.66.66 0 0 0 .532-.25l6.063-6.062a.754.754 0 0 0 .218-.532c0-.187-.094-.375-.219-.53l-.687-.688c-.156-.125-.344-.219-.531-.219-.219 0-.407.063-.532.188l-4.843 4.843-4.844-4.844a.849.849 0 0 0-.531-.187.754.754 0 0 0-.531.219l-.688.687a.732.732 0 0 0-.219.532c0 .218.063.406.219.53l6.062 6.063z"/>
+                          </defs>
+                        </svg>
+                    </paper-button>
+                        <paper-listbox slot="dropdown-content">
+                            <template is="dom-repeat" items="{{secondary}}">
+                                <paper-item class="center-fix" on-click="runCommand">{{item.script}}</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-menu-button>
+            </div>
+        </div>
+
+        <paper-toast id="toast" class="fit-bottom">
+            <paper-button class="toast-button" on-click="viewFullOutput">View full output</paper-button>
+        </paper-toast>
+
+        <paper-dialog id="dialog">
+            <h2>Full output</h2>
+            <paper-dialog-scrollable id="dialog-body">
+            </paper-dialog-scrollable>
+            <div class="buttons">
+                <paper-button dialog-confirm autofocus>Dismiss</paper-button>
+            </div>
+        </paper-dialog>
+
+    </template>
+
+    <script>
+        /**
+         * `webdash-npm-scripts`
+         *
+         *
+         * @customElement
+         * @polymer
+         * @demo demo/index.html
+         */
+        class WebdashNpmScripts extends Polymer.Element {
+            static get is() { return 'webdash-npm-scripts'; }
+
+            ready() {
+                super.ready();
+
+                this.backend = new Backend(WebdashNpmScripts.is);
+
+                this.getScripts();
+            }
+
+            getScripts() {
+                this.backend.get('scripts').then(data => {
+                    if (!data.scripts) {
+                        return false;
+                    }
+                    this.primary = [];
+                    this.secondary = [];
+                    let counter = 0;
+                    for (const [script, command] of Object.entries(data.scripts)) {
+                        const entry = { script, command };
+                        if (counter < 3) {
+                            this.primary.push(entry);
+                        } else {
+                            this.secondary.push(entry);
+                        }
+                        counter++;
+                    }
+                });
+            }
+
+            runCommand(event) {
+                const script = event.model.item.script;
+
+                if (event.currentTarget.classList.contains('running')) {
+                    return this.stop(script);
+                }
+
+                const button = event.currentTarget;
+                const spinner = button.querySelector('paper-spinner-lite');
+                if (spinner) {
+                    spinner.active = true;
+                    spinner.classList.remove('hidden');
+                    button.classList.add('running');
+                }
+
+                this.backend.post('run', { script }).then(data => {
+                    if (!data) {
+                        return false;
+                    }
+                    let response;
+                    let isError = false;
+                    if (data.response) {
+                        response = data.response;
+                    } else {
+                        response = data.error;
+                        isError = true;
+                    }
+                    response = response.trim();
+                    const linesCount = response.split("\n").length;//without -1 because \n always exists at the end
+
+                    const toast = this.$.toast;
+                    toast.text = response;
+                    console.log({ linesCount });
+                    if (linesCount > 1) {
+                        toast.text = response.substr(response.lastIndexOf("\n"));
+                    }
+                    if (response.length > 50) {
+                        toast.text = "... " + toast.text.substr(-30);
+                    }
+                    if (isError) {
+                        toast.classList.add('error');
+                    } else {
+                        toast.classList.remove('error');
+                    }
+                    toast.fitInto = this.$.plugin;
+
+                    if (linesCount === 1) {
+                        toast.querySelector('.toast-button').classList.add('hidden');
+                    } else {
+                        toast.querySelector('.toast-button').classList.remove('hidden');
+                    }
+                    toast.open();
+                    console.log(response);
+                    this.fullLog = response.replace(/\n/g, "<br>");
+                })
+                    .catch(error => {
+                        console.log('there was an error', error);
+                    })
+                    .finally(() => {
+                        if (spinner) {
+                            spinner.active = false;
+                            spinner.classList.add('hidden');
+                            button.classList.remove('running');
+                        }
+                    });
+            }
+
+            viewFullOutput() {
+                this.$["dialog-body"].innerHTML = this.fullLog;
+                this.$.dialog.fitInto = this.$.plugin;
+                this.$.dialog.open();
+                this.$.toast.hide();
+            }
+
+            stop(script) {
+                this.backend.post('stop', { script });
+            }
+        }
+
+        window.customElements.define(WebdashNpmScripts.is, WebdashNpmScripts);
+    </script>
+</dom-module>
