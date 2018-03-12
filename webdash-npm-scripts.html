@@ -222,7 +222,6 @@
 
                     const toast = this.$.toast;
                     toast.text = response;
-                    console.log({ linesCount });
                     if (linesCount > 1) {
                         toast.text = response.substr(response.lastIndexOf("\n"));
                     }
@@ -242,7 +241,6 @@
                         toast.querySelector('.toast-button').classList.remove('hidden');
                     }
                     toast.open();
-                    console.log(response);
                     this.fullLog = response.replace(/\n/g, "<br>");
                 })
                     .catch(error => {
