@@ -28,14 +28,14 @@
                 text-align: center;
             }
 
-            #more{
+            #more {
                 min-width: 46px;
                 height: 46px;
                 width: auto;
                 background-color: var(--gray-8);
             }
 
-            .button-container{
+            .button-container {
                 width: 100%;
             }
 
@@ -46,13 +46,16 @@
                 border-radius: 6px;
                 display: inline-block;
             }
-            .button-0{
+
+            .button-0 {
                 background-color: var(--accent);
             }
-            .button-1{
+
+            .button-1 {
                 background-color: var(--brand);
             }
-            .button-2{
+
+            .button-2 {
                 background-color: var(--alternative);
             }
 
@@ -98,41 +101,74 @@
             .running:hover paper-spinner-lite {
                 display: none;
             }
+
+            #empty-state {
+                text-align: center;
+                padding: 20px 40px;
+                line-height: 1.8;
+            }
+
+            #empty-state h4 {
+                margin-bottom: 0;
+            }
+
+            #empty-state p {
+                margin-top: 10px;
+                opacity: 0.7;
+            }
+
+            a {
+                color: inherit;
+            }
         </style>
 
         <div id="plugin">
-            <div id="buttons">
-                <template is="dom-repeat" items="{{primary}}">
-                    <div class="button-container">
-                        <paper-button class$="button button-{{index}}" on-click="runCommand" raised>
-                            <paper-spinner-lite class="hidden"></paper-spinner-lite>
-                            <iron-icon icon="av:stop" class="stop"></iron-icon>
-                            {{item.script}}
-                        </paper-button>
-                        <paper-tooltip position="top" animation-delay="0">{{item.command}}</paper-tooltip>
-                    </div>
-                </template>
-                    <paper-menu-button vertical-align="top" horizontal-align="right">
-                        <paper-button slot="dropdown-trigger" id="more" class="button" slot="dropdown-trigger">
-                        <svg width="14" height="10" viewBox="0 0 14 10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                          <g id="Canvas" transform="translate(-2459 -1691)">
-                            <g id="chevron-down">
-                              <use xlink:href="#path0_fill" transform="translate(2448.7 1688)" fill="#FFF"/>
-                            </g>
-                          </g>
-                          <defs>
-                            <path id="path0_fill" d="M16.94 11.906c.124.188.312.25.53.25a.66.66 0 0 0 .532-.25l6.063-6.062a.754.754 0 0 0 .218-.532c0-.187-.094-.375-.219-.53l-.687-.688c-.156-.125-.344-.219-.531-.219-.219 0-.407.063-.532.188l-4.843 4.843-4.844-4.844a.849.849 0 0 0-.531-.187.754.754 0 0 0-.531.219l-.688.687a.732.732 0 0 0-.219.532c0 .218.063.406.219.53l6.062 6.063z"/>
-                          </defs>
-                        </svg>
-                    </paper-button>
-                        <paper-listbox slot="dropdown-content">
-                            <template is="dom-repeat" items="{{secondary}}">
-                                <paper-item class="center-fix" on-click="runCommand">{{item.script}}</paper-item>
-                            </template>
-                        </paper-listbox>
-                    </paper-menu-button>
-            </div>
+            <template is="dom-if" if="{{showPrimary}}">
+                <div id="buttons">
+                    <template is="dom-repeat" items="{{primary}}">
+                        <div class="button-container">
+                            <paper-button class$="button button-{{index}}" on-click="runCommand" raised>
+                                <paper-spinner-lite class="hidden"></paper-spinner-lite>
+                                <iron-icon icon="av:stop" class="stop"></iron-icon>
+                                {{item.script}}
+                            </paper-button>
+                            <paper-tooltip position="top" animation-delay="0">{{item.command}}</paper-tooltip>
+                        </div>
+                    </template>
+                    <template is="dom-if" if="{{showSecondary}}">
+                        <paper-menu-button vertical-align="top" horizontal-align="right">
+                            <paper-button slot="dropdown-trigger" id="more" class="button" slot="dropdown-trigger">
+                                <svg width="14" height="10" viewBox="0 0 14 10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <g id="Canvas" transform="translate(-2459 -1691)">
+                                        <g id="chevron-down">
+                                            <use xlink:href="#path0_fill" transform="translate(2448.7 1688)" fill="#FFF" />
+                                        </g>
+                                    </g>
+                                    <defs>
+                                        <path id="path0_fill" d="M16.94 11.906c.124.188.312.25.53.25a.66.66 0 0 0 .532-.25l6.063-6.062a.754.754 0 0 0 .218-.532c0-.187-.094-.375-.219-.53l-.687-.688c-.156-.125-.344-.219-.531-.219-.219 0-.407.063-.532.188l-4.843 4.843-4.844-4.844a.849.849 0 0 0-.531-.187.754.754 0 0 0-.531.219l-.688.687a.732.732 0 0 0-.219.532c0 .218.063.406.219.53l6.062 6.063z"
+                                        />
+                                    </defs>
+                                </svg>
+                            </paper-button>
+                            <paper-listbox slot="dropdown-content">
+                                <template is="dom-repeat" items="{{secondary}}">
+                                    <paper-item class="center-fix" on-click="runCommand">{{item.script}}</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-menu-button>
+                    </template>
+                </div>
+            </template>
         </div>
+        <template is="dom-if" if="{{!showPrimary}}">
+            <div id="empty-state">
+                <h4>No npm scripts found</h4>
+                <p>
+                    Checkout the official documentation for
+                    <a href="https://docs.npmjs.com/cli/run-script" target="_blank" rel="nofollower">npm scripts</a>.
+                </p>
+            </div>
+        </template>
 
         <paper-toast id="toast" class="fit-bottom">
             <paper-button class="toast-button" on-click="viewFullOutput">View full output</paper-button>
@@ -172,6 +208,7 @@
             getScripts() {
                 this.backend.get('scripts').then(data => {
                     if (!data.scripts) {
+                        this.showPrimary = false;
                         return false;
                     }
                     this.primary = [];
@@ -186,6 +223,8 @@
                         }
                         counter++;
                     }
+                    this.showPrimary = !!this.primary.length;
+                    this.showSecondary = !!this.secondary.length;
                 });
             }
 
