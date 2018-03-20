@@ -3,6 +3,8 @@ const fs = require("fs");
 
 const processes = {};
 
+const options = { maxBuffer: 1024 * 1000000 };
+
 module.exports = {
   routes: {
     get: {
@@ -27,6 +29,7 @@ module.exports = {
 
         processes[body.script] = exec(
           `npm run ${body.script} --silent`,
+          options,
           (error, response) => {
             if (error !== null) {
               return res.status(400).send({ error: error.toString() });
