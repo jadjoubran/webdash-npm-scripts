@@ -1,17 +1,20 @@
 # Webdash NPM Scripts
 
-![NPM Scripts preview](https://i.imgur.com/lkmMxDc.png)
+Run your frequently used npm scripts straight from the dashboard using one-click buttons.
 
 ```bash
 npm install --save-dev webdash-pwa-manifest
 ```
 
+![NPM Scripts preview](https://i.imgur.com/lkmMxDc.png)
+
+
 ## Features
 
 Run your npm scripts straight from the dashboard using one-click buttons.
 
-* Run scripts from webdash
-* Access remaining scripts in dropdown
+* Quick-access your top 3 scripts
+* Access secondary scripts from dropdown
 * Cancel long running tasks
 * View command output
 
