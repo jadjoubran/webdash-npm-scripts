@@ -24,12 +24,11 @@ This plugin creates 3 buttons for the first 3 scripts in your `package.json` and
 
 You can control if a command should end up as a button or in the list by rearranging the scripts in your `package.json`
 
-## Long running tasks
-simply add 
+simply add
 `
-"longRunningScripts": ["mylongruningscript", "mylongruningscript2"]
+"serverScripts": ["start", "dev"]
 `
-to root of your webdash.json 
+to root of your webdash.json
 
 you can see output of tasks in terminal
 ## Enjoying webdash?

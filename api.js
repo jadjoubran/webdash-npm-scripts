@@ -1,28 +1,27 @@
 const { exec, spawn } = require("child_process");
 const fs = require("fs");
+const kill = require('tree-kill');
 
 const processes = {};
 
 const options = { maxBuffer: 1024 * 1000000 };
 
-let longRuningProcesses = {};
-
-const startLongRuningProcess = (script) => {
+const startServerScript = (script) => {
   try {
     const commandProcess = spawn('npm', ['run', script]);
-    longRuningProcesses[script] = commandProcess
+    processes[script] = commandProcess
     commandProcess.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+      console.log(data.toString());
     });
     
     commandProcess.stderr.on('data', (data) => {
-      console.log(`std error data: ${data}`);
+      console.log(data.toString());
     });
     
     commandProcess.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
+      console.log(`script ${script} exited with code ${code}`);
     });
-    return Promise.resolve('async process started successfully')
+    return Promise.resolve(`script ${script} is running successfully`)
   } catch (error) {
     return Promise.reject(error)
   }
@@ -51,12 +50,9 @@ module.exports = {
         }
         const appRoot = req.app.locals.appRoot;
         const webdashJson = require(`${appRoot}/webdash.json`);
-        const { longRunningScripts = [] } = webdashJson
-        if (~longRunningScripts.indexOf(body.script)) {
-          startLongRuningProcess(body.script)
-          .then((result) => {
-            res.send({ response: result });
-          })
+        const { serverScripts = [] } = webdashJson
+        if (~serverScripts.indexOf(body.script)) {
+          startServerScript(body.script)
           .catch((error) => {
             return res.status(400).send({ error: error.toString() });
           })
@@ -74,20 +70,21 @@ module.exports = {
         );
       },
       stop: (req, res) => {
+        const body = req.body;
+        const { script } = body
         const appRoot = req.app.locals.appRoot;
         const webdashJson = require(`${appRoot}/webdash.json`);
-        if (~longRunningScripts.indexOf(body.script)) {
-          longRuningProcesses[script].kill();
-          return res.send(true);
-        }
-        const body = req.body;
-        if (!body || !body.script) {
+        const { serverScripts = [] } = webdashJson
+
+        if (!body || !script) {
           return res.send(false);
         }
-        if (!processes[body.script]) {
+
+        if (!processes[script]) {
           return res.send(false);
         }
-        processes[body.script].kill();
+
+        processes[script].kill();
         res.send(true);
       }
     }
