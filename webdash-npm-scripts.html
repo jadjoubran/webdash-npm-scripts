@@ -230,13 +230,20 @@
 
             runCommand(event) {
                 const script = event.model.item.script;
-
-                if (event.currentTarget.classList.contains('running')) {
-                    return this.stop(script);
-                }
-
                 const button = event.currentTarget;
                 const spinner = button.querySelector('paper-spinner-lite');
+
+                if (event.currentTarget.classList.contains('running')) {
+                    return this.stop(script)
+                    .then(response => {
+                        if (response) {
+                            spinner.active = false;
+                            spinner.classList.add('hidden');
+                            button.classList.remove('running');
+                        }
+                    });
+                }
+
                 if (spinner) {
                     spinner.active = true;
                     spinner.classList.remove('hidden');
@@ -280,17 +287,21 @@
                     }
                     toast.open();
                     this.fullLog = response.replace(/\n/g, "<br>");
+                    const { serverStarted } = data
+                    if (spinner && !serverStarted) {
+                        spinner.active = false;
+                        spinner.classList.add('hidden');
+                        button.classList.remove('running');
+                    }
                 })
                     .catch(error => {
                         console.log('there was an error', error);
-                    })
-                    .finally(() => {
                         if (spinner) {
                             spinner.active = false;
                             spinner.classList.add('hidden');
                             button.classList.remove('running');
                         }
-                    });
+                    })
             }
 
             viewFullOutput() {
@@ -301,7 +312,7 @@
             }
 
             stop(script) {
-                this.backend.post('stop', { script });
+                return this.backend.post('stop');
             }
         }
 

@@ -48,11 +48,14 @@ module.exports = {
         if (!body || !body.script) {
           return res.send(false);
         }
-        const appRoot = req.app.locals.appRoot;
-        const webdashJson = require(`${appRoot}/webdash.json`);
-        const { serverScripts = [] } = webdashJson
+
+        const { appRoot, config } = req.app.locals;        
+        const { serverScripts = [] } = config
         if (~serverScripts.indexOf(body.script)) {
           startServerScript(body.script)
+          .then((result) => {
+            res.send({ response: result, serverStarted: true });        
+          })
           .catch((error) => {
             return res.status(400).send({ error: error.toString() });
           })
@@ -65,16 +68,15 @@ module.exports = {
             if (error !== null) {
               return res.status(400).send({ error: error.toString() });
             }
-            res.send({ response: response });
+            res.send({ response: response, serverStarted: false });
           }
         );
       },
       stop: (req, res) => {
         const body = req.body;
         const { script } = body
-        const appRoot = req.app.locals.appRoot;
-        const webdashJson = require(`${appRoot}/webdash.json`);
-        const { serverScripts = [] } = webdashJson
+        const { appRoot, config } = req.app.locals;
+        const { serverScripts = [] } = config
 
         if (!body || !script) {
           return res.send(false);
@@ -84,7 +86,7 @@ module.exports = {
           return res.send(false);
         }
 
-        processes[script].kill();
+        kill(processes[script].pid);
         res.send(true);
       }
     }
