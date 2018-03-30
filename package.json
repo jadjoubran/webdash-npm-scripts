@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/jadjoubran/webdash-npm-scripts/issues"
   },
-  "homepage": "https://github.com/jadjoubran/webdash-npm-scripts#readme"
+  "homepage": "https://github.com/jadjoubran/webdash-npm-scripts#readme",
+  "dependencies": {
+    "tree-kill": "^1.2.0"
+  }
 }
