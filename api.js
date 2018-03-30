@@ -8,7 +8,7 @@ const options = { maxBuffer: 1024 * 1000000 };
 
 const startServerScript = (script) => {
   try {
-    const commandProcess = spawn('npm', ['run', script]);
+    const commandProcess = spawn('npm', ['run', script, '--silent']);
     processes[script] = commandProcess
     commandProcess.stdout.on('data', (data) => {
       console.log(data.toString());

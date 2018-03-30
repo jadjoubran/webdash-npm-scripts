@@ -312,7 +312,7 @@
             }
 
             stop(script) {
-                return this.backend.post('stop');
+                return this.backend.post('stop', { script });
             }
         }
 
