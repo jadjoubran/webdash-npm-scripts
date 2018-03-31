@@ -10,6 +10,7 @@
 <link rel="import" href="/bower_components/paper-item/paper-item.html">
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
+<link rel="import" href="/bower_components/empty-state-webdash/empty-state-webdash.html">
 
 
 <dom-module id="webdash-npm-scripts">
@@ -102,21 +103,6 @@
                 display: none;
             }
 
-            #empty-state {
-                text-align: center;
-                padding: 20px 40px;
-                line-height: 1.8;
-            }
-
-            #empty-state h4 {
-                margin-bottom: 0;
-            }
-
-            #empty-state p {
-                margin-top: 10px;
-                opacity: 0.7;
-            }
-
             a {
                 color: inherit;
             }
@@ -161,12 +147,10 @@
             </template>
         </div>
         <template is="dom-if" if="{{!showPrimary}}">
-            <div id="empty-state">
-                <h4>No npm scripts found</h4>
-                <p>
-                    Checkout the official documentation for
-                    <a href="https://docs.npmjs.com/cli/run-script" target="_blank" rel="nofollower">npm scripts</a>.
-                </p>
+            <empty-state-webdash title="No npm scripts found">
+              Checkout the official documentation for
+              <a href="https://docs.npmjs.com/cli/run-script" target="_blank" rel="nofollower">npm scripts</a>.
+            </empty-state-webdash>
             </div>
         </template>
 
