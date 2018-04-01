@@ -224,6 +224,12 @@
                             spinner.active = false;
                             spinner.classList.add('hidden');
                             button.classList.remove('running');
+                            
+                            const serverScripts = JSON.parse(localStorage.getItem('serverScripts'))
+                            serverScripts && localStorage.setItem(
+                                'serverScripts',
+                                JSON.stringify(serverScripts.filter(serverScript => serverScript !== script))
+                            )
                         }
                     });
                 }
@@ -276,6 +282,12 @@
                         spinner.active = false;
                         spinner.classList.add('hidden');
                         button.classList.remove('running');
+                    }
+
+                    if (serverStarted) {
+                        const serverScripts = localStorage.getItem('serverScripts')
+                        const newServerScripts = serverScripts ? [...JSON.parse(serverScripts), script] : [script]
+                        localStorage.setItem('serverScripts', JSON.stringify(newServerScripts))
                     }
                 })
                     .catch(error => {
