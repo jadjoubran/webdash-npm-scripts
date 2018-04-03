@@ -113,7 +113,7 @@
                 <div id="buttons">
                     <template is="dom-repeat" items="{{primary}}">
                         <div class="button-container">
-                            <paper-button class$="button button-{{index}}" on-click="runCommand" raised>
+                            <paper-button id$="button-{{item.script}}" class$="button button-{{index}}" on-click="runCommand" raised>
                                 <paper-spinner-lite class="hidden"></paper-spinner-lite>
                                 <iron-icon icon="av:stop" class="stop"></iron-icon>
                                 {{item.script}}
@@ -148,8 +148,8 @@
         </div>
         <template is="dom-if" if="{{!showPrimary}}">
             <empty-state-webdash title="No npm scripts found">
-              Checkout the official documentation for
-              <a href="https://docs.npmjs.com/cli/run-script" target="_blank" rel="nofollower">npm scripts</a>.
+                Checkout the official documentation for
+                <a href="https://docs.npmjs.com/cli/run-script" target="_blank" rel="nofollower">npm scripts</a>.
             </empty-state-webdash>
             </div>
         </template>
@@ -184,6 +184,7 @@
             ready() {
                 super.ready();
 
+                this.storageKey = 'webdash-serverScripts';
                 this.backend = new Backend(WebdashNpmScripts.is);
 
                 this.getScripts();
@@ -209,7 +210,27 @@
                     }
                     this.showPrimary = !!this.primary.length;
                     this.showSecondary = !!this.secondary.length;
+
+                    //there might be a better way to do this
+                    setTimeout(() => {
+                        this.showRunningScripts();
+                    }, 0);
                 });
+            }
+
+            showRunningScripts() {
+                const serverScripts = JSON.parse(localStorage.getItem(this.storageKey));
+                if (!serverScripts || !serverScripts.length) {
+                    return false;
+                }
+                for (const script of serverScripts) {
+                    const button = this.shadowRoot.querySelector(`#button-${script}`);
+                    const spinner = button.querySelector('paper-spinner-lite');
+
+                    spinner.active = true;
+                    spinner.classList.remove('hidden');
+                    button.classList.add('running');
+                }
             }
 
             runCommand(event) {
@@ -219,19 +240,19 @@
 
                 if (event.currentTarget.classList.contains('running')) {
                     return this.stop(script)
-                    .then(response => {
-                        if (response) {
-                            spinner.active = false;
-                            spinner.classList.add('hidden');
-                            button.classList.remove('running');
-                            
-                            const serverScripts = JSON.parse(localStorage.getItem('serverScripts'))
-                            serverScripts && localStorage.setItem(
-                                'serverScripts',
-                                JSON.stringify(serverScripts.filter(serverScript => serverScript !== script))
-                            )
-                        }
-                    });
+                        .then(response => {
+                            if (response) {
+                                spinner.active = false;
+                                spinner.classList.add('hidden');
+                                button.classList.remove('running');
+
+                                const serverScripts = JSON.parse(localStorage.getItem(this.storageKey));
+                                serverScripts && localStorage.setItem(
+                                    this.storageKey,
+                                    JSON.stringify(serverScripts.filter(serverScript => serverScript !== script))
+                                );
+                            }
+                        });
                 }
 
                 if (spinner) {
@@ -285,9 +306,9 @@
                     }
 
                     if (serverStarted) {
-                        const serverScripts = localStorage.getItem('serverScripts')
+                        const serverScripts = localStorage.getItem(this.storageKey)
                         const newServerScripts = serverScripts ? [...JSON.parse(serverScripts), script] : [script]
-                        localStorage.setItem('serverScripts', JSON.stringify(newServerScripts))
+                        localStorage.setItem(this.storageKey, JSON.stringify(newServerScripts))
                     }
                 })
                     .catch(error => {
