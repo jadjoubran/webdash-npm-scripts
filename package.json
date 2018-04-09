@@ -14,7 +14,9 @@
     "*.json"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./node_modules/.bin/standard",
+    "lint-fix": "./node_modules/.bin/standard --fix"
   },
   "repository": {
     "type": "git",
@@ -28,5 +30,13 @@
   "homepage": "https://github.com/jadjoubran/webdash-npm-scripts#readme",
   "dependencies": {
     "tree-kill": "^1.2.0"
+  },
+  "devDependencies": {
+    "standard": "^11.0.1"
+  },
+  "standard": {
+    "env": [
+      "es6"
+    ]
   }
 }

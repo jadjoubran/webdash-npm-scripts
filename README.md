@@ -31,6 +31,10 @@ simply add
 to root of your webdash.json
 
 you can see output of tasks in terminal
+## Contributing
+this project uses [standard js](https://github.com/standard/standard)
+for coding style,
+make sure to run ```npm run lint``` or ```yarn lint``` before commiting changes
 ## Enjoying webdash?
 
 Say Hi on Twitter: [@JoubranJad](https://twitter.com/JoubranJad)
